@@ -14,4 +14,5 @@ import org.springframework.data.redis.core.RedisHash;
 public class Investments {
     private String id;
     private String name;
+    private String descricao;
 }

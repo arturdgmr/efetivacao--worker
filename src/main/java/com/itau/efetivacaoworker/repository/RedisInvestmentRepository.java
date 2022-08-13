@@ -3,10 +3,12 @@ package com.itau.efetivacaoworker.repository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itau.efetivacaoworker.domain.Investments;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+@Slf4j
 @Repository
 @RequiredArgsConstructor
 public class RedisInvestmentRepository implements InvestmentRepository {
@@ -23,7 +25,11 @@ public class RedisInvestmentRepository implements InvestmentRepository {
     @Override
     public Mono<Investments> get(String key) {
         return reactiveRedisComponent.get(INVESTMENT_KEY, key)
-                .flatMap(d -> Mono.just(objectMapper.convertValue(d, Investments.class)));
+                .flatMap(d -> Mono.just(objectMapper.convertValue(d, Investments.class)))
+                .doOnNext(i -> log.info("Investimento recuperado {}", i))
+                .onErrorMap(Exception.class, t -> {
+                    return new RuntimeException("Erro!!!");
+                });
     }
 
     @Override
